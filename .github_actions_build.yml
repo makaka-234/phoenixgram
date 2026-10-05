@@ -1,0 +1,48 @@
+# Файл для GitHub Actions — скопируй в .github/workflows/build.yml
+name: Build PhoenixGram APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.6'
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release --split-per-abi
+
+      - name: Upload APK (arm64 — для большинства телефонов)
+        uses: actions/upload-artifact@v4
+        with:
+          name: PhoenixGram-arm64
+          path: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+          retention-days: 30
+
+      - name: Upload APK (universal — для всех устройств)
+        uses: actions/upload-artifact@v4
+        with:
+          name: PhoenixGram-universal
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30
