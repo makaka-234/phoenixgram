@@ -1,6 +1,5 @@
 name: phoenixgram
-description: PhoenixGram — мессенджер нового поколения
-
+description: PhoenixGram - мессенджер
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -11,35 +10,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  
-  # HTTP и WebSocket
+
   dio: ^5.4.0
   web_socket_channel: ^2.4.0
-  
-  # Управление состоянием
   provider: ^6.1.1
-  
-  # Хранение данных
   shared_preferences: ^2.2.2
-  
-  # UI
-  cupertino_icons: ^1.0.6
-  cached_network_image: ^3.3.1
-  shimmer: ^3.0.0
-  flutter_svg: ^2.0.9
-  timeago: ^3.6.1
-  intl: ^0.19.0
-  
-  # Уведомления
-  flutter_local_notifications: ^17.0.0
-  
-  # Утилиты
-  image_picker: ^1.0.7
-  path_provider: ^2.1.2
-  url_launcher: ^6.2.4
-  package_info_plus: ^5.0.1
-  connectivity_plus: ^5.0.2
-  
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -47,5 +23,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  assets:
-    - assets/icons/
