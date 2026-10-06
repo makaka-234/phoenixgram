@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../services/auth_provider.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,22 +12,27 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _idCtrl = TextEditingController();
-  final _codeCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
+  final _passwordCtrl = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  bool _obscureCode = true;
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _idCtrl.dispose();
-    _codeCtrl.dispose();
+    _phoneCtrl.dispose();
+    _passwordCtrl.dispose();
     super.dispose();
   }
 
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
+
     final auth = context.read<AuthProvider>();
-    final ok = await auth.login(_idCtrl.text.trim(), _codeCtrl.text.trim());
+    final ok = await auth.login(
+      _phoneCtrl.text.trim(),
+      _passwordCtrl.text.trim(),
+    );
+
     if (!ok && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -49,7 +56,8 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               children: [
                 const SizedBox(height: 80),
-                // Лого
+
+                // Логотип
                 Container(
                   width: 100,
                   height: 100,
@@ -68,8 +76,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.bolt, size: 56, color: Colors.white),
+                  child: const Icon(
+                    Icons.bolt,
+                    size: 56,
+                    color: Colors.white,
+                  ),
                 ),
+
                 const SizedBox(height: 28),
                 const Text(
                   'PhoenixGram',
@@ -80,48 +93,76 @@ class _LoginScreenState extends State<LoginScreen> {
                     letterSpacing: 0.5,
                   ),
                 ),
+
                 const SizedBox(height: 8),
                 Text(
-                  'Войди по ID из Telegram-бота',
-                  style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 14),
+                  'Войди по номеру телефона',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.6),
+                    fontSize: 14,
+                  ),
                 ),
+
                 const SizedBox(height: 48),
-                // ID
+
+                // Номер телефона
                 _buildField(
-                  controller: _idCtrl,
-                  label: 'PhoenixGram ID',
-                  hint: 'например: john_doe',
-                  icon: Icons.alternate_email,
+                  controller: _phoneCtrl,
+                  label: 'Номер телефона',
+                  hint: '+7 999 123-45-67',
+                  icon: Icons.phone_outlined,
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'[0-9+\-() ]'),
+                    ),
+                  ],
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty) return 'Введите ID';
-                    if (v.trim().length < 3) return 'ID слишком короткий';
+                    if (v == null || v.trim().isEmpty) {
+                      return 'Введите номер телефона';
+                    }
+                    if (v.trim().length < 10) {
+                      return 'Неверный номер';
+                    }
                     return null;
                   },
                 ),
+
                 const SizedBox(height: 16),
-                // Код
+
+                // Пароль
                 _buildField(
-                  controller: _codeCtrl,
-                  label: 'Код из бота',
-                  hint: '12345678',
+                  controller: _passwordCtrl,
+                  label: 'Пароль',
+                  hint: 'Минимум 4 символа',
                   icon: Icons.lock_outline,
-                  obscure: _obscureCode,
+                  obscure: _obscurePassword,
+                  keyboardType: TextInputType.text,
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _obscureCode ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                      _obscurePassword
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
                       color: Colors.white54,
                     ),
-                    onPressed: () => setState(() => _obscureCode = !_obscureCode),
+                    onPressed: () {
+                      setState(() => _obscurePassword = !_obscurePassword);
+                    },
                   ),
-                  keyboardType: TextInputType.number,
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty) return 'Введите код';
-                    if (v.trim().length < 6) return 'Код слишком короткий';
+                    if (v == null || v.trim().isEmpty) {
+                      return 'Введите пароль';
+                    }
+                    if (v.trim().length < 4) {
+                      return 'Минимум 4 символа';
+                    }
                     return null;
                   },
                 ),
+
                 const SizedBox(height: 32),
-                // Кнопка входа
+
+                // Кнопка Войти
                 SizedBox(
                   width: double.infinity,
                   height: 52,
@@ -130,23 +171,69 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF2AABEE),
                       foregroundColor: Colors.white,
-                      disabledBackgroundColor: const Color(0xFF2AABEE).withOpacity(0.5),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      disabledBackgroundColor:
+                          const Color(0xFF2AABEE).withOpacity(0.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                       elevation: 0,
                     ),
                     child: auth.loading
                         ? const SizedBox(
                             width: 22,
                             height: 22,
-                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.5,
+                            ),
                           )
                         : const Text(
                             'Войти',
-                            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                   ),
                 ),
+
+                const SizedBox(height: 16),
+
+                // Кнопка Регистрация
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const RegisterScreen(),
+                        ),
+                      );
+                    },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF2AABEE),
+                      side: const BorderSide(
+                        color: Color(0xFF2AABEE),
+                        width: 1.5,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: const Text(
+                      'Зарегистрироваться',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+
                 const SizedBox(height: 24),
+
                 // Подсказка
                 Container(
                   padding: const EdgeInsets.all(16),
@@ -159,10 +246,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       const Row(
                         children: [
-                          Icon(Icons.help_outline, color: Color(0xFF2AABEE), size: 18),
+                          Icon(
+                            Icons.help_outline,
+                            color: Color(0xFF2AABEE),
+                            size: 18,
+                          ),
                           SizedBox(width: 8),
                           Text(
-                            'Как получить код?',
+                            'Как войти?',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
@@ -172,13 +263,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                       ),
                       const SizedBox(height: 10),
-                      _step('1', 'Откройте Telegram-бот PhoenixGram'),
-                      _step('2', 'Отправьте /start и зарегистрируйтесь'),
-                      _step('3', 'Бот выдаст вам ID и 8-значный код'),
-                      _step('4', 'Введите их в поля выше'),
+                      _step('1', 'Введи номер телефона'),
+                      _step('2', 'Придумай пароль (4+ символа)'),
+                      _step('3', 'Нажми «Зарегистрироваться»'),
+                      _step('4', 'Потом — «Войти»'),
                     ],
                   ),
                 ),
+
                 const SizedBox(height: 40),
               ],
             ),
@@ -194,19 +286,20 @@ class _LoginScreenState extends State<LoginScreen> {
     required String hint,
     required IconData icon,
     bool obscure = false,
-    Widget? suffixIcon,
     TextInputType? keyboardType,
+    Widget? suffixIcon,
+    List<TextInputFormatter>? inputFormatters,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
       obscureText: obscure,
       keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
       style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        labelStyle: const TextStyle(color: Color(0xFF2AABEE)),
         hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
         prefixIcon: Icon(icon, color: Colors.white54, size: 20),
         suffixIcon: suffixIcon,
@@ -244,16 +337,29 @@ class _LoginScreenState extends State<LoginScreen> {
             width: 20,
             height: 20,
             decoration: const BoxDecoration(
-              shape: BoxShape.circle,
               color: Color(0xFF2AABEE),
+              shape: BoxShape.circle,
             ),
             child: Center(
-              child: Text(num, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+              child: Text(
+                num,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(text, style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13)),
+            child: Text(
+              text,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 13,
+              ),
+            ),
           ),
         ],
       ),
