@@ -30,12 +30,12 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> login(String phoenixId, String code) async {
+    Future<bool> login(String phone, String password) async {
     _loading = true;
     _error = null;
     notifyListeners();
     try {
-      final result = await _api.login(phoenixId, code);
+      final result = await _api.login(phone, password);
       await _api.saveTokens(result['access_token'], result['refresh_token']);
       _user = await _api.getMe();
       _loading = false;
@@ -47,6 +47,26 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  Future<bool> register(String phone, String password) async {
+    _loading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      final result = await _api.register(phone, password);
+      await _api.saveTokens(result['access_token'], result['refresh_token']);
+      _user = await _api.getMe();
+      _loading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _loading = false;
+      _error = _parseError(e);
+      notifyListeners();
+      return false;
+    }
+  }
   }
 
   Future<void> logout() async {
