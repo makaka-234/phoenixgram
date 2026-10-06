@@ -1,7 +1,7 @@
 class AppConstants {
   // Замени на свой реальный URL сервера
-  static const String baseUrl = 'https://your-server.com';
-  static const String wsUrl = 'wss://your-server.com/api/v1/ws';
+  static const String baseUrl = 'http://127.0.0.1:8000';
+  static const String wsUrl = 'ws://127.0.0.1:8000/api/v1/ws';
   
   static const String appName = 'PhoenixGram';
   static const String appVersion = '1.0.0';
