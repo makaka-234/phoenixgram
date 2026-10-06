@@ -8,10 +8,11 @@ class AuthProvider extends ChangeNotifier {
   bool _initialized = false;
   String? _error;
 
-  User? get user => _user;
+   User? get user => _user;
   bool get loading => _loading;
   bool get initialized => _initialized;
   String? get error => _error;
+  bool get isLoggedIn => _user != null;
 
   final ApiService _api = ApiService();
 
