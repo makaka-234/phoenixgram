@@ -86,14 +86,21 @@ class ApiService {
 
   // ========== AUTH ==========
 
-  Future<Map<String, dynamic>> login(String phoenixId, String code) async {
+    Future<Map<String, dynamic>> login(String phone, String password) async {
     final res = await _dio.post('/auth/login', data: {
-      'phoenix_id': phoenixId,
-      'code': code,
+      'phone': phone,
+      'password': password,
     });
     return res.data;
   }
 
+  Future<Map<String, dynamic>> register(String phone, String password) async {
+    final res = await _dio.post('/auth/register', data: {
+      'phone': phone,
+      'password': password,
+    });
+    return res.data;
+  }
   Future<User> getMe() async {
     final res = await _dio.get('/auth/me');
     return User.fromJson(res.data);
