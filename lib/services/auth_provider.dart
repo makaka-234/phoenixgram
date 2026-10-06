@@ -10,7 +10,6 @@ class AuthProvider extends ChangeNotifier {
 
   User? get user => _user;
   bool get loading => _loading;
-  bool get isLoggedIn => _user != null;
   bool get initialized => _initialized;
   String? get error => _error;
 
@@ -30,13 +29,16 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-    Future<bool> login(String phone, String password) async {
+  Future<bool> login(String phone, String password) async {
     _loading = true;
     _error = null;
     notifyListeners();
     try {
       final result = await _api.login(phone, password);
-      await _api.saveTokens(result['access_token'], result['refresh_token']);
+      await _api.saveTokens(
+        result['access_token'],
+        result['refresh_token'],
+      );
       _user = await _api.getMe();
       _loading = false;
       notifyListeners();
@@ -55,7 +57,10 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final result = await _api.register(phone, password);
-      await _api.saveTokens(result['access_token'], result['refresh_token']);
+      await _api.saveTokens(
+        result['access_token'],
+        result['refresh_token'],
+      );
       _user = await _api.getMe();
       _loading = false;
       notifyListeners();
@@ -66,7 +71,6 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     }
-  }
   }
 
   Future<void> logout() async {
@@ -83,8 +87,12 @@ class AuthProvider extends ChangeNotifier {
   }
 
   String _parseError(dynamic e) {
-    if (e.toString().contains('401')) return 'Неверный ID или код';
-    if (e.toString().contains('SocketException')) return 'Нет подключения к интернету';
+    if (e.toString().contains('401')) return 'Неверный номер или пароль';
+    if (e.toString().contains('404')) return 'Пользователь не найден';
+    if (e.toString().contains('400')) return 'Номер уже зарегистрирован';
+    if (e.toString().contains('SocketException')) {
+      return 'Нет подключения к интернету';
+    }
     return 'Ошибка входа. Попробуйте ещё раз';
   }
 }
