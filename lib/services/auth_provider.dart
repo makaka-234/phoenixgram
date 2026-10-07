@@ -8,7 +8,7 @@ class AuthProvider extends ChangeNotifier {
   bool _initialized = false;
   String? _error;
 
-   User? get user => _user;
+  User? get user => _user;
   bool get loading => _loading;
   bool get initialized => _initialized;
   String? get error => _error;
@@ -36,10 +36,8 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final result = await _api.login(phone, password);
-      await _api.saveTokens(
-        result['access_token'],
-        result['refresh_token'],
-      );
+      final token = result['token'] ?? '';
+      await _api.saveTokens(token, token);
       _user = await _api.getMe();
       _loading = false;
       notifyListeners();
@@ -58,10 +56,8 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final result = await _api.register(phone, password);
-      await _api.saveTokens(
-        result['access_token'],
-        result['refresh_token'],
-      );
+      final token = result['token'] ?? '';
+      await _api.saveTokens(token, token);
       _user = await _api.getMe();
       _loading = false;
       notifyListeners();
